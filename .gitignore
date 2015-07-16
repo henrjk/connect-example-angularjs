@@ -1,4 +1,5 @@
 node_modules
+app.browser
 dist
 .tmp
 .sass-cache

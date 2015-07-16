@@ -20,7 +20,6 @@ module.exports = function (grunt) {
   // Configurable paths for the application
   var appConfig = {
     app: require('./bower.json').appPath || 'app',
-    dist: 'dist'
   };
 
   var authConfig =
@@ -48,12 +47,12 @@ module.exports = function (grunt) {
           livereload: '<%= connect.options.livereload %>'
         },
         files: [
-          '<%= yeoman.app %>/{,*/}*.html',
-          '<%= yeoman.app %>/{,*/}*.js',
+          'app/{,*/}*.html',
+          'app/{,*/}*.js',
           '.tmp/styles/{,*/}*.css',
-          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+          'app/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ],
-        tasks: ['newer:copy']
+        tasks: ['newer:copy:browser']
       }
     },
 
@@ -61,29 +60,38 @@ module.exports = function (grunt) {
     connect: {
       options: {
         port: "<%= auth_config_data.APP_PORT %>", // may need to convert to number?
+        livereload: 35729,
         // Change this to '0.0.0.0' to access the server from outside.
         hostname: '<%= auth_config_data.APP_HOST %>',
-        livereload: 35729
+        open: false,
+        base: [
+          'app.browser'
+        ],
+        middleware: function (connect, options) {
+          var middlewares = [];
+          middlewares.push(modRewrite(['^[^\\.]*$ /index.html [L]']));
+          middlewares.push(connect().use(
+              '/bower_components',
+              connect.static('./bower_components')
+          ));
+          options.base.forEach(function (base) {
+            return middlewares.push(connect['static'](base));
+          });
+          return middlewares;
+        },
       },
       livereload: {
         options: {
-          open: true,
+          open: true
+        }
+      },
+      dist: {
+        options: {
+          livereload: false,
           base: [
-            '.tmp',
-            'dist/app'
+            'dist'
           ],
-          middleware: function (connect, options) {
-            var middlewares = [];
-            middlewares.push(modRewrite(['^[^\\.]*$ /index.html [L]']));
-            middlewares.push(connect().use(
-              '/bower_components',
-              connect.static('./bower_components')
-            ));
-            options.base.forEach(function (base) {
-              return middlewares.push(connect['static'](base));
-            });
-            return middlewares;
-          }
+          keepalive: true,
         }
       },
     },
@@ -92,7 +100,7 @@ module.exports = function (grunt) {
     clean: {
       server: {
           files: [{
-            src: ['.tmp', 'dist']
+            src: ['.tmp', 'dist', 'app.browser']
           }]
       }
     },
@@ -102,60 +110,111 @@ module.exports = function (grunt) {
     copy: {
       styles: {
         expand: true,
-        cwd: '<%= yeoman.app %>/styles',
+        cwd: 'app/styles',
         dest: '.tmp/styles/',
         src: '{,*/}*.css'
       },
-      dist: {
-        expand: true,
-        dest: 'dist',
-        src: [
-          'register_with_anvil_connect.sh',
-          '<%= yeoman.app %>/**'],
+      browser: {
         options: {
-          process: function( content, srcpath) {
+          process: function (content, srcpath) {
             return grunt.template.process(
-              content,
-              {data: authConfigData});
+                content,
+                {data: authConfigData});
+          },
+        },
+        expand: true,
+        cwd: 'app',
+        dest: 'app.browser',
+        src: ['**/*'],
+      },
+      browserscript: {
+        dest: 'app.browser/',
+        src: ['register_with_anvil_connect.sh'],
+        options: {
+          process: function (content, srcpath) {
+            return grunt.template.process(
+                content,
+                {data: authConfigData});
           },
         },
       },
+      dist: {
+        expand: true,
+        cwd: 'app.browser',
+        dest: 'dist',
+        src: ['**/*'],
+      },
     },
 
-    // Run some tasks in parallel to speed up the build process
-    concurrent: {
-      server: [
-        'copy:styles',
-        'copy:dist',
-      ]
+    useminPrepare: {
+      options: {
+        dest: 'dist',
+        root: 'app.browser/../'
+      },
+      html: 'app.browser/index.html'
     },
+    uglify: {
+      options: {
+        sourceMap: true,
+        sourceMapIncludeSources: true,
+      }
+    },
+    usemin: {
+      options: {
+        dirs: ['dist']
+      },
+      html: ['dist/{,*/}*.html'],
+      css: ['.tmp/styles/{,*/}*.css']
+    },
+
 
   });
 
   grunt.registerTask('chmodScript', 'Makes script executable', function(target) {
     var fs = require('fs');
-    fs.chmodSync('dist/register_with_anvil_connect.sh', '755');
+    fs.chmodSync('app.browser/register_with_anvil_connect.sh', '755');
+  });
+
+  grunt.registerTask('build_browser', function (target) {
+    grunt.log.writeln('Build app in app.browser folder, matching auth server configuration in %s', grunt.config('auth_config'));
+    grunt.log.writeln('If not yet done register client using app.browser/register_with_anvil_connect.sh. See README.md');
+    grunt.task.run([
+      'clean',
+      'copy:browser',
+      'copy:browserscript',
+      'chmodScript',
+    ]);
   });
 
   grunt.registerTask('build', function (target) {
     grunt.log.writeln('Build app in dist folder, matching auth server configuration in %s', grunt.config('auth_config'));
     grunt.log.writeln('If not yet done register client using dist/register_with_anvil_connect.sh. See README.md');
     grunt.task.run([
-      'clean',
+      'build_browser',
       'copy:dist',
+      'useminPrepare',
+      'concat',
+      'uglify',
+      'usemin',
       'chmodScript',
     ]);
   });
 
+  grunt.registerTask('serve_dist', 'serve already build files from dist', function (target) {
+    grunt.task.run([
+      'connect:dist'
+    ]);
+  });
+
+
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
-    if (target === 'dist') {
-      return grunt.task.run(['build', 'connect:dist:keepalive']);
-    }
+  if (target === 'dist') {
+    return grunt.task.run(['build', 'connect:dist']);
+  }
 
-    grunt.task.run([
-      'clean:server',
-      'concurrent:server',
+  grunt.task.run([
+      'build_browser',
       'connect:livereload',
       'watch'
     ]);
