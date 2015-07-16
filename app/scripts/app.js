@@ -88,13 +88,6 @@ angular
         redirectTo: '/'
       });
   })
-
-  .run(function (Anvil) {
-    Anvil.getKeys().then(function (jwks) {
-      console.log('Loaded JWKs', jwks)
-    })
-  })
-
   .controller('SigninCtrl', function ($scope, Anvil) {
 
     $scope.signin = function () {
