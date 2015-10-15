@@ -90,6 +90,8 @@ angular
   })
   .controller('SigninCtrl', function ($scope, Anvil) {
 
+    $scope.session = Anvil.session;
+
     $scope.signin = function () {
       Anvil.authorize()
     };
@@ -105,7 +107,7 @@ angular
   })
 
   .controller('MainCtrl', function ($scope, Anvil) {
-    // ...
+    $scope.session = Anvil.session
   })
 
   .controller('RequiresAuthenticationCtrl', function ($scope, session) {
