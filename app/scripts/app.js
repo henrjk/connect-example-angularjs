@@ -48,7 +48,7 @@ angular
         templateUrl: '/views/requiresScope.html',
         controller: 'RequiresScopeCtrl',
         resolve: {
-          session: AnvilProvider.requireScope('realm', '/unauthorized')
+          session: AnvilProvider.requireScope('profile', '/unauthorized')
         }
       })
 
