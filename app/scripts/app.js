@@ -22,9 +22,9 @@ angular
       issuer:       '<%=AUTH_SERVER%>',
       client_id:    '<%=CLIENT_ID%>',
       //redirect_uri: 'http://localhost:9000/callback.html',
-      redirect_uri: '<%=APP_SERVER%>/callback_<%= AUTH_DISPLAY%>.html',
-      display:      '<%=AUTH_DISPLAY%>',
-      scope:        'realm email'
+      redirect_uri: '<%=APP_SERVER%>/<%=APP_AUTH_CALLBACK%>',
+      display:      '<%=AUTH_DISPLAY%>' // ,
+      // scope:        'realm email'
     });
 
     $locationProvider.html5Mode(true);
@@ -58,7 +58,7 @@ angular
       })
 
       // HANDLE CALLBACK (REQUIRED BY FULL PAGE NAVIGATION ONLY)
-      .when('/callback_page.html', {
+      .when('/<%= APP_AUTH_CALLBACK %>', {
         resolve: {
           session: function ($location, Anvil) {
             if ($location.hash()) {
