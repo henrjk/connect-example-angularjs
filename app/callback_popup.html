@@ -5,14 +5,21 @@
       window.addEventListener('load', function () {
         var pageUrl = window.location.href
           , opener = window.opener
-          , pageOrigin = opener.location.origin;
+          , pageOrigin
+          if (opener) {
+            pageOrigin = opener.location.origin;
+          } else {
+            console.log("No opener for window: ", window.location)
+          }
 
           console.log("load callback")
           console.log("pageUrl=" , pageUrl);
           console.log("pageOrigin=" , pageOrigin);
           console.log("opener=" , opener);
-        opener.postMessage(pageUrl, pageOrigin);
-        window.close();
+          if (opener) {
+            opener.postMessage(pageUrl, pageOrigin);
+          }
+          window.close();
       });
     </script>
   </head>
