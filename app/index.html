@@ -15,7 +15,7 @@
         <ul class="nav nav-pills pull-right">
           <li><a href="/requires/authentication">Protected</a></li>
           <li><a href="/requires/scope">Scoped</a></li>
-          <li ng-show='session.userInfo'><a ng-href='#'>{{session.userInfo.name}}</a></li>
+          <li ng-show='session.userInfo'><a ng-href='#'>{{session.userInfo.name || session.userInfo.given_name || session.userInfo.email}} </a></li>
           <li ng-hide='session.userInfo'><a ng-href='#' ng-click="signin()">Signin</a></li>
           <li ng-show='session.userInfo'><a ng-href='#' ng-click="signout()">Signout</a></li>
         </ul>
