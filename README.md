@@ -8,7 +8,9 @@ This repository demonstrates authenticating users of an AngularJS app using Anvi
 ## Prerequisites
 Setup [Anvil Connect authorization server](https://github.com/anvilresearch/connect/blob/master/README.md)
 
-As a result the Anvil Authorization server should run on localhost:3000.
+These instructions assume that the Anvil Authorization server (issuer) runs on localhost:3000 in development mode (not using docker). However it should also be adaptable to using docker.
+
+One must register the application with the issuer. For this the cli is used. The [cli must be setup](https://github.com/anvilresearch/connect-docs/blob/master/cli.md) first so that you can login to the server.
 
 ## Register the client and generate matching angular sources.
 To allow the app to connect to the authorization server a client (representing)
@@ -22,13 +24,14 @@ To achieve this the configuration information for the client is stored in file
 
 You will find that this file is **not** checked in. Instead there are files with
 similar names which are checked in. These are good starting points for your
-client registration. For example they differ
-depending on whether boot2docker is involved or not. Also there can be
+client registration. They differ
+depending on whether there is a distinct docker host which is *not* localhost or
+not. Also there are
 differences on how the authentication is displayed, for example using a popup or
 a new page.
 
 Use one of these as a starting point and copy them to `authconf.json`. For
-example when using docker via boot2docker the following is a good starting
+example when running using docker via boot2docker the following is a good starting
 point:
 
 ```console
@@ -40,7 +43,6 @@ via `grunt serve` then use:
 ```console
 cp authconf.dev.localhost.json authconf.json
 ```
-
 
 The Anvil Authentication server recognizes clients by an id which is generated
 when they are registered. Therefore the starting point is not yet final as the
@@ -54,26 +56,29 @@ First generate the script by:
 grunt build
 ```
 
+Next login to the cli.
+
+```console
+dev$ nvl login
+? Select an Anvil Connect instance localhost:3000 (localhost-3000)
+Selected issuer localhost:3000 (http://localhost:3000)
+Warning: you are communicating over plain text.
+? Enter your email example@gmail.com
+? Enter your password ************
+You have been successfully logged in to localhost:3000
+```
+
 Use the generated `dist/register_with_anvil_connect.sh` as follows in the root directory of your Anvil Connect Authentication
 server:
 
 ```console
-mac:anvil-connect dev$ /Users/dev/code/connect-example-angularjs/dist/register_with_anvil_connect.sh
-Registring nv add client {
-  "client_name": "Angular Example App",
-  "default_max_age": 36000,
-  "redirect_uris": [
-    "http://localhost:9000/callback_popup.html",
-    "http://localhost:9000/callback_page.html",
-    "http://localhost:9000/rp.html"],
-  "post_logout_redirect_uris": ["http://localhost:9000"],
-  "trusted": "true"
-}
+dev$ ./dist/register_with_anvil_connect.sh
+Registering this client with localhost-3000
 Succeeded.
 Define CLIENT_ID as follows in authconf.json:
 {
 ...
-  "CLIENT_ID" : "d20dc3cf-cdfd-4e14-a070-0cb40bdb5d92",
+  "CLIENT_ID" : "29dcbf2a-88d6-4038-b9f9-6bf425104b59",
 ...
 }
 ```
@@ -83,10 +88,12 @@ The id shown will be unique to your authentication server. Replace the existing
 
 ## Run with angular app served by grunt serve
 
-In this scenaria we are using a simple build server via grunt.
+In this scenario we are using a simple build server via grunt.
+
+TODO:
 
 ```console
-igelmac:connect-example-angularjs dev$ grunt serve
+dev$ grunt serve
 Using authconf.json
 
 Running "serve" task
