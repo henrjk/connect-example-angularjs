@@ -27,8 +27,8 @@ out=$(nvl client:register \
   --default-max-age "3600" \
   --redirect-uri "<%= APP_SERVER %>/<%= APP_AUTH_CALLBACK %>" \
   --redirect-uri "<%= APP_SERVER %>/rp.html" \
-  --post-logout-redirect-uri "<%= APP_SERVER %>" \
-  --post-logout-redirect-uri "<%= APP_SERVER %>")
+  --post-logout-redirect-uri "<%= APP_SERVER %>/" \
+  --post-logout-redirect-uri "<%= APP_SERVER %>/")
 
 # duplication of --post-logout-redirect-uri see https://github.com/anvilresearch/connect-cli/issues/70
 
