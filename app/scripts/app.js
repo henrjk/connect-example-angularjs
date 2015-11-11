@@ -94,15 +94,25 @@ angular
 
     $scope.signin = function () {
       Anvil.authorize()
+      Anvil.once('authenticated', function () {
+        $scope.$apply();
+      })
     };
 
     $scope.signout = function () {
       Anvil.signout('/');
     };
 
-    $scope.$watch(function () { return Anvil.session }, function (newVal) {
-      $scope.session = newVal;
-    });
+    $scope.$watch(
+      // proper formatting allows easier setting of breakpoints.
+      function () {
+        return Anvil.session
+      },
+      function (newVal) {
+        $scope.session = newVal
+      },
+      true
+    );
 
   })
 
