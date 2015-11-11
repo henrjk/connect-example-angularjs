@@ -5,32 +5,17 @@
 <html>
   <head>
     <script src="/bower_components/jquery/dist/jquery.js"></script>
+    <script src="/bower_components/bows/dist/bows.js"></script>
+    <script src="/bower_components/tiny-emitter/dist/tinyemitter.js"></script>
     <script src="/bower_components/sjcl/sjcl.js"></script>
+    <script src="/bower_components/jwt-decode/build/jwt-decode.js"></script>
 
-    <script src="/bower_components/crypto-js/components/core.js"></script>
-    <script src="/bower_components/crypto-js/components/sha1.js"></script>
-    <script src="/bower_components/crypto-js/components/sha256.js"></script>
-    <script src="/bower_components/crypto-js/components/x64-core.js"></script>
-    <script src="/bower_components/crypto-js/components/sha512.js"></script>
-
-    <script src="/bower_components/jsrsasign/ext/base64.js"></script>
-    <script src="/bower_components/jsrsasign/ext/jsbn.js"></script>
-    <script src="/bower_components/jsrsasign/ext/jsbn2.js"></script>
-    <script src="/bower_components/jsrsasign/ext/rsa.js"></script>
-    <script src="/bower_components/jsrsasign/ext/rsa2.js"></script>
-    <script src="/bower_components/jsrsasign/rsapem-1.1.js"></script>
-    <script src="/bower_components/jsrsasign/rsasign-1.2.min.js"></script>
-    <script src="/bower_components/jsrsasign/asn1hex-1.1.js"></script>
-    <!--<script src="/bower_components/jsrsasign/x509-1.1.js"></script>-->
-    <script src="/bower_components/jsrsasign/crypto-1.1.js"></script>
-    <script src="/bower_components/jsrsasign/base64x-1.1.js"></script>
-    <script src="/bower_components/jsrsasign/keyutil-1.0.js"></script>
-
-    <script src="/bower_components/jsjws/ext/json-sans-eval.js"></script>
-    <script src="/bower_components/jsjws/jws-2.0.js"></script>
-
+    <script src="/bower_components/anvil-connect/anvil-connect.jquery.js"></script>
     <script src="/bower_components/anvil-connect/anvil-connect.js"></script>
+    <script src="/bower_components/anvil-connect/anvil-connect.novalidate.js"></script>
     <script>
+
+      var log = bows('rp.html')
 
       Anvil.configure({
         issuer:       '<%=AUTH_SERVER%>',
@@ -40,19 +25,21 @@
         scope:        'realm'
       });
 
+      Anvil.init()
+
       Anvil.deserialize();
 
       var response = (location.hash) ? Anvil.parseFormUrlEncoded(location.hash.substring(1)) : {};
 
       if (location.hash) {
-        Anvil.getKeys().then(function (keys) {
-
+        Anvil.prepareAuthorization().then( function () {
           function success (session) {
-            console.log('RP CALLBACK SUCCESS', session, Anvil.sessionState);
+            log.info('RP CALLBACK SUCCESS', session, Anvil.sessionState);
+            window.parent.postMessage(location.hash, location.origin);
           }
 
           function failure (fault) {
-            console.log('RP CALLBACK FAILURE', fault);
+            log.info('RP CALLBACK FAILURE', fault);
           }
 
           Anvil.callback(response).then(success, failure)
@@ -71,27 +58,28 @@
       // listen for changes to OP browser state
       function receiveMessage(event) {
         if (event.origin !== Anvil.issuer) {
-          console.log('Houston, we have a problem', event.origin, Anvil.issuer);
+          log.debug('Houston, we have a problem', event.origin, Anvil.issuer);
           return;
         }
 
         if (event.data === 'error') {
-          console.log('ERROR FROM OP', event.data);
+          log.debug('ERROR FROM OP', event.data);
         }
 
         // SESSION STATE IS THE SAME
         if (event.data === 'unchanged') {
-          console.log('unchanged');
+          log.info('session state: unchanged');
         }
 
         // SESSION STATE HAS CHANGED
         else {
+          log.info('session state: changed');
           var uri = Anvil.uri('authorize', {
             prompt: 'none',
             id_token_hint: Anvil.session.id_token
           });
 
-          //console.log('RP REAUTHENTICATING', uri)
+          log.info('RP REAUTHENTICATING', uri)
           window.location = uri;
         }
       }
