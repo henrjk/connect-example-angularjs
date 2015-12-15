@@ -1,5 +1,13 @@
 'use strict';
 
+import 'anvil-connect-js/anvil-connect-angular'
+import 'angular-animate'
+import 'angular-cookies'
+import 'angular-resource'
+import 'angular-route'
+import 'angular-sanitize'
+import 'angular-touch'
+
 /**
  * Anvil Connect AngularJS Example App
  */

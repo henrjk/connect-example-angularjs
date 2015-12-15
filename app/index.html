@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="/styles/main.css">
+    <base href="/" />
   </head>
 
   <body ng-app="AnvilConnectClient">
@@ -29,12 +30,23 @@
       </div>
     </div>
 
+    <script src="jspm/jspm_packages/system.src.js">
+    </script>
+    <script src="jspm/jspm_config.js">
+    </script>
+    <script>
+      // server opened at http://127.0.0.1:8080/ so this is not localhost
+      //if (location.origin.match(/localhost/)) {
+        System.trace = true
+        System.import('scripts/app')
+    </script>
+
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
     <script src="bower_components/json3/lib/json3.min.js"></script>
     <![endif]-->
 
-    <!-- build:js /scripts/vendor/vendor.js -->
+    <!-- build:js /scripts/vendor/vendor.js x->
     <script src="/bower_components/jquery/dist/jquery.js"></script>
     <script src="/bower_components/angular/angular.js"></script>
     <script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
@@ -44,8 +56,9 @@
     <script src="/bower_components/angular-animate/angular-animate.js"></script>
     <script src="/bower_components/angular-touch/angular-touch.js"></script>
     <script src="/bower_components/angular-route/angular-route.js"></script>
+    -->
 
-    <!-- AFTER LOADING ANGULAR DEPENDENCIES -->
+    <!-- AFTER LOADING ANGULAR DEPENDENCIES X->
     <script src="/bower_components/bows/dist/bows.js"></script>
     <script src="/bower_components/tiny-emitter/dist/tinyemitter.js"></script>
     <script src="/bower_components/sjcl/sjcl.js"></script>
@@ -56,8 +69,9 @@
     <!-- endbuild -->
     <!-- BEFORE LOADING APP -->
 
+    <!---
     <script src="/scripts/app.js"></script>
-
+    --->
     <!---
     <iframe id="rp" style="visibility:hidden;display:none" src="/rp.html" frameborder="0"></iframe>
     <iframe id="op" style="visibility:hidden;display:none" src="<%=AUTH_SERVER%>/session" frameborder="0"></iframe>

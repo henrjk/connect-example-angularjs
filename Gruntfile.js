@@ -69,10 +69,14 @@ module.exports = function (grunt) {
         ],
         middleware: function (connect, options) {
           var middlewares = [];
-          middlewares.push(modRewrite(['^[^\\.]*$ /index.html [L]']));
           middlewares.push(connect().use(
-              '/bower_components',
-              connect.static('./bower_components')
+              '/jspm',
+              connect.static('./jspm')
+          ));
+          //middlewares.push(modRewrite(['^[^\\.]*$ /index.html [L]']));
+          middlewares.push(connect().use(
+              '/bower_components/bootstrap',
+              connect.static('./bower_components/bootstrap')
           ));
           options.base.forEach(function (base) {
             return middlewares.push(connect['static'](base));
@@ -179,7 +183,7 @@ module.exports = function (grunt) {
     grunt.log.writeln('Build app in app.browser folder, matching auth server configuration in %s', grunt.config('auth_config'));
     grunt.log.writeln('If not yet done register client using app.browser/register_with_anvil_connect.sh. See README.md');
     grunt.task.run([
-      'clean',
+      // 'clean',
       'copy:browser',
       'copy:browserscript',
       'chmodScript',

@@ -1,8 +1,9 @@
-node_modules
 app.browser
+bower_components
 dist
+jspm/jspm_packages
+keys
+node_modules
 .tmp
 .sass-cache
 authconf.json
-bower_components
-keys
