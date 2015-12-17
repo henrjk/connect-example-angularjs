@@ -73,7 +73,7 @@ module.exports = function (grunt) {
               '/jspm',
               connect.static('./jspm')
           ));
-          //middlewares.push(modRewrite(['^[^\\.]*$ /index.html [L]']));
+          middlewares.push(modRewrite(['^[^\\.]*$ /index.html [L]']));
           middlewares.push(connect().use(
               '/bower_components/bootstrap',
               connect.static('./bower_components/bootstrap')
@@ -150,28 +150,21 @@ module.exports = function (grunt) {
       },
     },
 
-    useminPrepare: {
-      options: {
-        dest: 'dist',
-        root: 'app.browser/../'
-      },
-      html: 'app.browser/index.html'
-    },
-    uglify: {
-      options: {
-        sourceMap: true,
-        sourceMapIncludeSources: true,
+    // This aint't working yet.
+    shell: {
+      bundle: {
+        command: 'jspm bundle-sfx app.browser/scripts/app' +
+        ' dist/scripts/app-bundle.js'
       }
     },
-    usemin: {
-      options: {
-        dirs: ['dist']
-      },
-      html: ['dist/{,*/}*.html'],
-      css: ['.tmp/styles/{,*/}*.css']
-    },
 
-
+    processhtml: {
+      dist: {
+        files: {
+          'dist/index.html': ['app/index.html']
+        }
+      }
+    }
   });
 
   grunt.registerTask('chmodScript', 'Makes script executable', function(target) {
@@ -183,7 +176,7 @@ module.exports = function (grunt) {
     grunt.log.writeln('Build app in app.browser folder, matching auth server configuration in %s', grunt.config('auth_config'));
     grunt.log.writeln('If not yet done register client using app.browser/register_with_anvil_connect.sh. See README.md');
     grunt.task.run([
-      // 'clean',
+      'clean',
       'copy:browser',
       'copy:browserscript',
       'chmodScript',
@@ -196,10 +189,8 @@ module.exports = function (grunt) {
     grunt.task.run([
       'build_browser',
       'copy:dist',
-      'useminPrepare',
-      'concat',
-      'uglify',
-      'usemin',
+      'shell:bundle',
+      'processhtml:dist',
       'chmodScript',
     ]);
   });
@@ -213,15 +204,15 @@ module.exports = function (grunt) {
 
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
-  if (target === 'dist') {
-    return grunt.task.run(['build', 'connect:dist']);
-  }
+    if (target === 'dist') {
+      return grunt.task.run(['build', 'connect:dist']);
+    }
 
-  grunt.task.run([
-      'build_browser',
-      'connect:livereload',
-      'watch'
-    ]);
+    grunt.task.run([
+        'build_browser',
+        'connect:livereload',
+        'watch'
+      ]);
   });
 
 
