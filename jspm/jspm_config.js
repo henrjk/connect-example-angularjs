@@ -1,5 +1,4 @@
 System.config({
-  baseURL: "/",
   defaultJSExtensions: true,
   transpiler: "babel",
   babelOptions: {
@@ -10,8 +9,7 @@ System.config({
   },
   paths: {
     "github:*": "jspm/jspm_packages/github/*",
-    "npm:*": "jspm/jspm_packages/npm/*",
-    "jspm:*": "jspm/jspm_packages/jspm/*"
+    "npm:*": "jspm/jspm_packages/npm/*"
   },
 
   map: {
@@ -21,8 +19,7 @@ System.config({
     "angular-route": "github:angular/bower-angular-route@1.4.8",
     "angular-sanitize": "github:angular/bower-angular-sanitize@1.4.8",
     "angular-touch": "github:angular/bower-angular-touch@1.4.8",
-    "anvil-connect-js": "jspm:anvil-connect-js@0.1.1",
-    "anvil-connect-jwt-validator": "jspm:anvil-connect-js@0.1.1/anvil-connect.novalidate",
+    "anvil-connect-js": "github:anvil-connect-js@0.1.1",
     "babel": "npm:babel-core@5.8.34",
     "babel-runtime": "npm:babel-runtime@5.8.34",
     "core-js": "npm:core-js@1.2.6",
@@ -43,6 +40,16 @@ System.config({
     },
     "github:angular/bower-angular-touch@1.4.8": {
       "angular": "github:angular/bower-angular@1.4.8"
+    },
+    "github:anvil-connect-js@0.1.1": {
+      "angular": "github:angular/bower-angular@1.4.8",
+      "bows": "npm:bows@1.4.8",
+      "jquery": "github:components/jquery@2.1.4",
+      "jwt-decode": "npm:jwt-decode@1.4.0",
+      "kriskowal/q": "github:kriskowal/q@2.0.2",
+      "q": "npm:q@1.4.1",
+      "sjcl": "npm:sjcl@1.0.3",
+      "tiny-emitter": "npm:tiny-emitter@1.0.2"
     },
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
@@ -76,16 +83,6 @@ System.config({
     },
     "github:jspm/nodelibs-vm@0.1.0": {
       "vm-browserify": "npm:vm-browserify@0.0.4"
-    },
-    "jspm:anvil-connect-js@0.1.1": {
-      "angular": "github:angular/bower-angular@1.4.8",
-      "bows": "npm:bows@1.4.8",
-      "jquery": "github:components/jquery@2.1.4",
-      "jwt-decode": "npm:jwt-decode@1.4.0",
-      "kriskowal/q": "github:kriskowal/q@2.0.2",
-      "q": "npm:q@1.4.1",
-      "sjcl": "npm:sjcl@1.0.3",
-      "tiny-emitter": "npm:tiny-emitter@1.0.2"
     },
     "npm:asn1.js@4.2.1": {
       "assert": "github:jspm/nodelibs-assert@0.1.0",
