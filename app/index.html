@@ -39,10 +39,17 @@
     <script src="jspm/jspm_packages/system.src.js"></script>
     <script src="jspm/jspm_config.js"></script>
     <script>
-      // server opened at http://127.0.0.1:8080/ so this is not localhost
-      //if (location.origin.match(/localhost/)) {
+      var readyForMainLoad
+      if (location.origin.match(/localhost/)) {
         System.trace = true
+        System.import('capaj/systemjs-hot-reloader').then(function (HotReloader) {
+          hr = new HotReloader.default('<%=APP_SERVER%>')
+          // chokidar-socket-emitter port
+        })
+      }
+      Promise.resolve(readyForMainLoad).then( () => {
         System.import('scripts/app')
+      })
     </script>
     <!-- /build   -->
 

@@ -16,6 +16,9 @@ module.exports = function (grunt) {
   require('time-grunt')(grunt);
 
   var modRewrite = require('connect-modrewrite');
+  var serveStatic = require('serve-static');
+  var chokidarSocketEmitter= require('chokidar-socket-emitter');
+
 
   // Configurable paths for the application
   var appConfig = {
@@ -48,9 +51,20 @@ module.exports = function (grunt) {
         },
         files: [
           'app/{,*/}*.html',
-          'app/{,*/}*.js',
+          'app/styles/{,*/}*.css',
           '.tmp/styles/{,*/}*.css',
           'app/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
+        ],
+        tasks: ['newer:copy:browser']
+      },
+      // js files are now hot reloaded by using
+      // chokidar-socket-emitter and capaj/systemjs-hot-reloader
+      build: {
+        options: {
+          livereload: false
+        },
+        files: [
+          'app/{,*/}*.js'
         ],
         tasks: ['newer:copy:browser']
       }
@@ -71,22 +85,32 @@ module.exports = function (grunt) {
           var middlewares = [];
           middlewares.push(connect().use(
               '/jspm',
-              connect.static('./jspm')
+              serveStatic('./jspm')
           ));
           middlewares.push(modRewrite(['^[^\\.]*$ /index.html [L]']));
           middlewares.push(connect().use(
               '/bower_components/bootstrap',
-              connect.static('./bower_components/bootstrap')
+              serveStatic('./bower_components/bootstrap')
           ));
           options.base.forEach(function (base) {
-            return middlewares.push(connect['static'](base));
+            return middlewares.push(serveStatic(base));
           });
           return middlewares;
         },
       },
       livereload: {
         options: {
-          open: true
+          open: true,
+          onCreateServer: function(server, connect, options) {
+            debugger;
+            var cse = require('chokidar-socket-emitter');
+            cse({
+              app: server,
+              path: 'app.browser',
+              relativeTo: 'app.browser'
+            });
+          },
+
         }
       },
       dist: {
@@ -96,6 +120,7 @@ module.exports = function (grunt) {
             'dist'
           ],
           keepalive: true,
+
         }
       },
     },
@@ -172,6 +197,7 @@ module.exports = function (grunt) {
     fs.chmodSync('app.browser/register_with_anvil_connect.sh', '755');
   });
 
+
   grunt.registerTask('build_browser', function (target) {
     grunt.log.writeln('Build app in app.browser folder, matching auth server configuration in %s', grunt.config('auth_config'));
     grunt.log.writeln('If not yet done register client using app.browser/register_with_anvil_connect.sh. See README.md');
@@ -200,7 +226,6 @@ module.exports = function (grunt) {
       'connect:dist'
     ]);
   });
-
 
 
   grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
