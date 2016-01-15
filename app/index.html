@@ -37,19 +37,20 @@
 
     <!-- build:js scripts/app-bundle.js  -->
     <script src="jspm/jspm_packages/system.src.js"></script>
-    <script src="jspm/jspm_config.js"></script>
+    <script src="jspm/jspm.browser.js"></script>
+    <script src="jspm/jspm.js"></script>
     <script>
-      var readyForMainLoad
-      if (location.origin.match(/localhost/)) {
+//      var readyForMainLoad
+//      if (location.origin.match(/localhost/)) {
         System.trace = true
-        System.import('capaj/systemjs-hot-reloader').then(function (HotReloader) {
-          hr = new HotReloader.default('<%=APP_SERVER%>')
-          // chokidar-socket-emitter port
-        })
-      }
-      Promise.resolve(readyForMainLoad).then( () => {
-        System.import('scripts/app')
-      })
+//        System.import('capaj/systemjs-hot-reloader.js').then(function (HotReloader) {
+//          hr = new HotReloader.default('<%=APP_SERVER%>')
+//          // chokidar-socket-emitter port
+//        })
+//      }
+//      Promise.resolve(readyForMainLoad).then( () => {
+        System.import('scripts/app.js')
+//      })
     </script>
     <!-- /build   -->
 

@@ -1,6 +1,4 @@
-'use strict';
-
-import 'anvil-connect-js/anvil-connect-angular'
+import 'connect-js/anvil-connect-angular'
 import 'angular-animate'
 import 'angular-cookies'
 import 'angular-resource'
@@ -14,6 +12,7 @@ import 'angular-touch'
 
 angular
   .module('AnvilConnectClient', [
+    'anvil',
     'ngAnimate',
     'ngCookies',
     'ngResource',
