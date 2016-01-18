@@ -10,7 +10,10 @@
     <base href="/" />
   </head>
 
-  <body ng-app="AnvilConnectClient">
+  <body>
+  <!-- Don't use ng-app="AnvilConnectClient" because of dynamic loading:
+       see https://docs.angularjs.org/guide/bootstrap#manual-initialization
+  -->
     <div class="container">
       <div class="header" ng-controller="SigninCtrl">
         <ul class="nav nav-pills pull-right">
@@ -42,14 +45,16 @@
     <script>
 //      var readyForMainLoad
 //      if (location.origin.match(/localhost/)) {
-        System.trace = true
+        //System.trace = true
 //        System.import('capaj/systemjs-hot-reloader.js').then(function (HotReloader) {
 //          hr = new HotReloader.default('<%=APP_SERVER%>')
 //          // chokidar-socket-emitter port
 //        })
 //      }
 //      Promise.resolve(readyForMainLoad).then( () => {
-        System.import('scripts/app.js')
+        System.import('scripts/app.js').then( function() {
+          angular.bootstrap(document, ['AnvilConnectClient']);
+        })
 //      })
     </script>
     <!-- /build   -->
