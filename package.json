@@ -40,7 +40,8 @@
       "angular-route": "github:angular/bower-angular-route@^1.4.8",
       "angular-sanitize": "github:angular/bower-angular-sanitize@^1.4.8",
       "angular-touch": "github:angular/bower-angular-touch@^1.4.8",
-      "connect-js": "github:anvilresearch/connect-js@0.1.1"
+      "connect-js": "github:anvilresearch/connect-js@0.1.1",
+      "text-encoder-lite": "npm:text-encoder-lite@^1.0.0"
     },
     "devDependencies": {
       "plugin-babel": "npm:systemjs-plugin-babel@^0.0.2"

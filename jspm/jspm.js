@@ -1,7 +1,5 @@
 SystemJS.config({
-
   transpiler: "plugin-babel",
-
   packageConfigPaths: [
     "github:*/*.json",
     "npm:@*/*.json",
@@ -10,6 +8,7 @@ SystemJS.config({
   globalEvaluationScope: false,
 
   map: {
+    "angular": "github:angular/bower-angular@1.4.8",
     "angular-animate": "github:angular/bower-angular-animate@1.4.8",
     "angular-cookies": "github:angular/bower-angular-cookies@1.4.8",
     "angular-resource": "github:angular/bower-angular-resource@1.4.8",
@@ -19,7 +18,8 @@ SystemJS.config({
     "connect-js": "github:anvilresearch/connect-js@0.1.1",
     "fs": "github:jspm/nodelibs-fs@0.2.0-alpha",
     "plugin-babel": "npm:systemjs-plugin-babel@0.0.2",
-    "process": "github:jspm/nodelibs-process@0.2.0-alpha"
+    "process": "github:jspm/nodelibs-process@0.2.0-alpha",
+    "text-encoder-lite": "npm:text-encoder-lite@1.0.0"
   },
 
   packages: {
