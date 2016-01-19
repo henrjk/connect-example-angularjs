@@ -1,10 +1,15 @@
-import 'connect-js/anvil-connect-angular'
-import 'angular-animate'
-import 'angular-cookies'
-import 'angular-resource'
-import 'angular-route'
-import 'angular-sanitize'
-import 'angular-touch'
+'use strict'
+require('anvil-connect-js/lib/anvil-connect-angular')
+require('angular-animate')
+require('angular-cookies')
+require('angular-resource')
+require('angular-route')
+require('angular-sanitize')
+require('angular-touch')
+
+var bows = require('bows')
+
+var log = bows('app')
 
 /**
  * Anvil Connect AngularJS Example App
@@ -68,13 +73,18 @@ angular
       .when('/<%= APP_AUTH_CALLBACK %>', {
         resolve: {
           session: function ($location, Anvil) {
+            log.debug('/<%= APP_AUTH_CALLBACK %>.resolve.session:', $location)
             if ($location.hash()) {
-              Anvil.authorize().then(
+              Anvil.promise.authorize().then(
 
                 // handle successful authorization
                 function (response) {
-                  $location.url(localStorage['anvil.connect.destination'] || '/');
-                  delete localStorage['anvil.connect.destination']
+                  var dest = Anvil.destination(false)
+                  // $location.url( dest || '/'); did not react for me
+                  // there may be solutions with scope apply but this seems
+                  // to work fine, although this may not be the best solution.
+                  console.log('/<%= APP_AUTH_CALLBACK %> authorize() succeeded, destination=', dest)
+                  location.href =  dest || '/'
                 },
 
                 // handle failed authorization
@@ -95,13 +105,35 @@ angular
         redirectTo: '/'
       });
   })
+  .run(function (Anvil) {
+    log.debug('run() entering')
+    /**
+     * Reinstate an existing session
+     */
+    Anvil.promise.deserialize().catch( function () {
+      log.debug('Ignore promise rejection when reinstating session')
+    })
+    Anvil.promise.prepareAuthorization().then(function (result) {
+      log.debug('prepareAuthorization succeeded:', result)
+    }, function (err) {
+      log.error('prepareAuthorization failed:', err)
+    })
+  })
   .controller('SigninCtrl', function ($scope, Anvil) {
 
     $scope.session = Anvil.session;
 
+    log.debug('SigninCtrl() init: adding Anvil.once("authenticated"..) listener')
+    Anvil.once('authenticated', function () {
+      log.debug('SigninCtrl() init: authenticated callback: calling $scope.$apply')
+      $scope.$apply();
+    })
+
     $scope.signin = function () {
-      Anvil.authorize()
+      log.debug('SigninCtrl.signin(): entering function')
+      Anvil.promise.authorize()
       Anvil.once('authenticated', function () {
+        log.debug('SigninCtrl.signin() authenticated callback: calling $scope.$apply')
         $scope.$apply();
       })
     };

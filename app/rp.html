@@ -4,89 +4,20 @@
 
 <html>
   <head>
-    <script src="/bower_components/jquery/dist/jquery.js"></script>
-    <script src="/bower_components/bows/dist/bows.js"></script>
-    <script src="/bower_components/tiny-emitter/dist/tinyemitter.js"></script>
-    <script src="/bower_components/sjcl/sjcl.js"></script>
-    <script src="/bower_components/jwt-decode/build/jwt-decode.js"></script>
+    <!-- build:js scripts/rp-bundle.min.js  -->
+    <!--[if lt IE 9]>
+    <script src="bower_components/es5-shim/es5-shim.js"></script>
+    <script src="bower_components/json3/lib/json3.min.js"></script>
+    <![endif]-->
 
-    <script src="/bower_components/anvil-connect/anvil-connect.jquery.js"></script>
-    <script src="/bower_components/anvil-connect/anvil-connect.js"></script>
-    <script src="/bower_components/anvil-connect/anvil-connect.novalidate.js"></script>
+
+    <script src="bower_components/promiz/promiz.js"></script>
+    <script src="bower_components/webcrypto-shim/webcrypto-shim.js"></script>
+    <script src="node_modules/text-encoder-lite/index.js"></script>
+    <script src="scripts/rp-dev-bundle.js"></script>
+    <!-- /build   -->
+
     <script>
-
-      var log = bows('rp.html')
-
-      Anvil.configure({
-        issuer:       '<%=AUTH_SERVER%>',
-        client_id:    '<%= CLIENT_ID %>',
-        redirect_uri: '<%=APP_SERVER%>/rp.html',
-        display:      'page',
-        scope:        'realm'
-      });
-
-      Anvil.init()
-
-      Anvil.deserialize();
-
-      var response = (location.hash) ? Anvil.parseFormUrlEncoded(location.hash.substring(1)) : {};
-
-      if (location.hash) {
-        Anvil.prepareAuthorization().then( function () {
-          function success (session) {
-            log.info('RP CALLBACK SUCCESS', session, Anvil.sessionState);
-            window.parent.postMessage(location.hash, location.origin);
-          }
-
-          function failure (fault) {
-            log.info('RP CALLBACK FAILURE', fault);
-          }
-
-          Anvil.callback(response).then(success, failure)
-        })
-      }
-
-
-
-      // start checking the session every 30 seconds
-      function setTimer() {
-        var timer = setInterval("Anvil.checkSession('op')", 30*1000);
-      }
-
-
-
-      // listen for changes to OP browser state
-      function receiveMessage(event) {
-        if (event.origin !== Anvil.issuer) {
-          log.debug('Houston, we have a problem', event.origin, Anvil.issuer);
-          return;
-        }
-
-        if (event.data === 'error') {
-          log.debug('ERROR FROM OP', event.data);
-        }
-
-        // SESSION STATE IS THE SAME
-        if (event.data === 'unchanged') {
-          log.info('session state: unchanged');
-        }
-
-        // SESSION STATE HAS CHANGED
-        else {
-          log.info('session state: changed');
-          var uri = Anvil.uri('authorize', {
-            prompt: 'none',
-            id_token_hint: Anvil.session.id_token
-          });
-
-          log.info('RP REAUTHENTICATING', uri)
-          window.location = uri;
-        }
-      }
-
-      window.addEventListener("message", receiveMessage, false);
-
-      setTimer()
 
     </script>
   </head>

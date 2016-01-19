@@ -48,7 +48,7 @@
           } else {
             var fragment = Anvil.getUrlFragment(pageUrl)
             var response = Anvil.parseFormUrlEncoded(fragment)
-            Anvil.callback(response).then(
+            Anvil.promise.callback(response).then(
               function (result) {
                 log.info("Anvil.callback succeeded: ", result)
                 show('signed_in')

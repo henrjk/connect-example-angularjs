@@ -17,8 +17,6 @@ module.exports = function (grunt) {
 
   var modRewrite = require('connect-modrewrite');
   var serveStatic = require('serve-static');
-  var chokidarSocketEmitter= require('chokidar-socket-emitter');
-
 
   // Configurable paths for the application
   var appConfig = {
@@ -44,6 +42,7 @@ module.exports = function (grunt) {
     auth_config_data: authConfigData,
 
     // Watches files for changes and runs tasks based on the changed files
+    // to rebundle browserify bundle use watchify of npm...
     watch: {
       livereload: {
         options: {
@@ -52,19 +51,7 @@ module.exports = function (grunt) {
         files: [
           'app/{,*/}*.html',
           'app/styles/{,*/}*.css',
-          '.tmp/styles/{,*/}*.css',
-          'app/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-        ],
-        tasks: ['newer:copy:browser']
-      },
-      // js files are now hot reloaded by using
-      // chokidar-socket-emitter and capaj/systemjs-hot-reloader
-      build: {
-        options: {
-          livereload: false
-        },
-        files: [
-          'app/{,*/}*.js'
+          'app/scripts/{,*/}*.js'
         ],
         tasks: ['newer:copy:browser']
       }
@@ -84,13 +71,13 @@ module.exports = function (grunt) {
         middleware: function (connect, options) {
           var middlewares = [];
           middlewares.push(connect().use(
-              '/jspm',
-              serveStatic('./jspm')
+              '/node_modules',
+              serveStatic('./node_modules')
           ));
           middlewares.push(modRewrite(['^[^\\.]*$ /index.html [L]']));
           middlewares.push(connect().use(
-              '/bower_components/bootstrap',
-              serveStatic('./bower_components/bootstrap')
+              '/bower_components',
+              serveStatic('./bower_components')
           ));
           options.base.forEach(function (base) {
             return middlewares.push(serveStatic(base));
@@ -101,16 +88,6 @@ module.exports = function (grunt) {
       livereload: {
         options: {
           open: true,
-          onCreateServer: function(server, connect, options) {
-            debugger;
-            var cse = require('chokidar-socket-emitter');
-            cse({
-              app: server,
-              path: 'app.browser',
-              relativeTo: 'app.browser'
-            });
-          },
-
         }
       },
       dist: {
@@ -127,10 +104,15 @@ module.exports = function (grunt) {
 
     // Empties folders to start fresh
     clean: {
-      server: {
+      browser: {
           files: [{
-            src: ['.tmp', 'dist', 'app.browser']
+            src: ['app.browser']
           }]
+      },
+      dist: {
+        files: [{
+          src: ['dist']
+        }]
       }
     },
 
@@ -140,7 +122,6 @@ module.exports = function (grunt) {
       styles: {
         expand: true,
         cwd: 'app/styles',
-        dest: '.tmp/styles/',
         src: '{,*/}*.css'
       },
       browser: {
@@ -175,18 +156,95 @@ module.exports = function (grunt) {
       },
     },
 
-    // This aint't working yet.
-    shell: {
-      bundle: {
-        command: 'jspm bundle-sfx app.browser/scripts/app' +
-        ' dist/scripts/app-bundle.js'
+    browserify: {
+      options: {
+        browserifyOptions: {
+          debug: true
+        }
+      },
+      // having lib and and browser to split bundles does not
+      // seem to buy much if one can use watchify also
+      //lib: {
+      //  options: {
+      //    alias: [
+      //      'angular:',
+      //      'angular-animate:',
+      //      'angular-cookies:',
+      //      'angular-resource:',
+      //      'angular-route:',
+      //      'angular-sanitize:',
+      //      'angular-touch:',
+      //      'bows:'
+      //    ]
+      //  },
+      //  src: ['.'],
+      //  dest: 'app.browser/scripts/dev-vendor-bundle.js'
+      //},
+      browser: {
+        //options: {
+        //  external: [
+        //    'angular',
+        //    'angular-animate',
+        //    'angular-cookies',
+        //    'angular-resource',
+        //    'angular-route',
+        //    'angular-sanitize',
+        //    'angular-touch',
+        //    'bows'
+        //  ]
+        //},
+        files: {
+          'app.browser/scripts/dev-bundle.js':
+            ['app.browser/scripts/app.js'],
+          'app.browser/scripts/rp-dev-bundle.js':
+            ['app.browser/scripts/rp.js']
+        }
+      },
+      dist: {
+        options: {
+          browserifyOptions: {
+            debug: false
+          }
+        },
+        files: {
+          'dist/scripts/app-bundle.js': ['dist/scripts/app.js'],
+          'dist/scripts/rp-bundle.js': ['dist/scripts/rp.js']
+        }
+      }
+    },
+
+    uglify: {
+      options: {
+        mangle: false
+      },
+      dist: {
+        files: {
+          'dist/scripts/app-bundle.min.js': [
+            'bower_components/es5-shim/es5-shim.js',
+            'bower_components/json3/lib/json3.min.js',
+            'bower_components/promiz/promiz.js',
+            'bower_components/webcrypto-shim/webcrypto-shim.js',
+            'node_modules/text-encoder-lite/index.js',
+            'dist/scripts/app-bundle.js'
+          ],
+          'dist/scripts/rp-bundle.min.js': [
+            'bower_components/es5-shim/es5-shim.js',
+            'bower_components/json3/lib/json3.min.js',
+            'bower_components/promiz/promiz.js',
+            'bower_components/webcrypto-shim/webcrypto-shim.js',
+            'node_modules/text-encoder-lite/index.js',
+            'dist/scripts/rp-bundle.js'
+          ]
+
+        }
       }
     },
 
     processhtml: {
       dist: {
         files: {
-          'dist/index.html': ['app/index.html']
+          'dist/index.html': ['app.browser/index.html'],
+          'dist/rp.html': ['app.browser/rp.html']
         }
       }
     }
@@ -202,8 +260,9 @@ module.exports = function (grunt) {
     grunt.log.writeln('Build app in app.browser folder, matching auth server configuration in %s', grunt.config('auth_config'));
     grunt.log.writeln('If not yet done register client using app.browser/register_with_anvil_connect.sh. See README.md');
     grunt.task.run([
-      'clean',
+      'clean:browser',
       'copy:browser',
+      'browserify:browser',
       'copy:browserscript',
       'chmodScript',
     ]);
@@ -214,8 +273,10 @@ module.exports = function (grunt) {
     grunt.log.writeln('If not yet done register client using dist/register_with_anvil_connect.sh. See README.md');
     grunt.task.run([
       'build_browser',
+      'clean:dist',
       'copy:dist',
-      'shell:bundle',
+      'browserify:dist',
+      'uglify:dist',
       'processhtml:dist',
       'chmodScript',
     ]);

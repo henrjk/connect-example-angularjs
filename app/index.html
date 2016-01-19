@@ -10,10 +10,7 @@
     <base href="/" />
   </head>
 
-  <body>
-  <!-- Don't use ng-app="AnvilConnectClient" because of dynamic loading:
-       see https://docs.angularjs.org/guide/bootstrap#manual-initialization
-  -->
+  <body ng-app="AnvilConnectClient">
     <div class="container">
       <div class="header" ng-controller="SigninCtrl">
         <ul class="nav nav-pills pull-right">
@@ -33,35 +30,21 @@
       </div>
     </div>
 
+    <!-- build:js scripts/app-bundle.min.js  -->
     <!--[if lt IE 9]>
     <script src="bower_components/es5-shim/es5-shim.js"></script>
     <script src="bower_components/json3/lib/json3.min.js"></script>
     <![endif]-->
 
-    <!-- build:js scripts/app-bundle.js  -->
-    <script src="jspm/jspm_packages/system.src.js"></script>
-    <script src="jspm/jspm.browser.js"></script>
-    <script src="jspm/jspm.js"></script>
-    <script>
-//      var readyForMainLoad
-//      if (location.origin.match(/localhost/)) {
-        //System.trace = true
-//        System.import('capaj/systemjs-hot-reloader.js').then(function (HotReloader) {
-//          hr = new HotReloader.default('<%=APP_SERVER%>')
-//          // chokidar-socket-emitter port
-//        })
-//      }
-//      Promise.resolve(readyForMainLoad).then( () => {
-        System.import('scripts/app.js').then( function() {
-          angular.bootstrap(document, ['AnvilConnectClient']);
-        })
-//      })
-    </script>
+
+    <script src="bower_components/promiz/promiz.js"></script>
+    <script src="bower_components/webcrypto-shim/webcrypto-shim.js"></script>
+    <script src="node_modules/text-encoder-lite/index.js"></script>
+    <script src="scripts/dev-bundle.js"></script>
     <!-- /build   -->
 
-    <!--- Enable these for OpenIDConnect session management
+    <!--- Enable these for OpenIDConnect session management -->
     <iframe id="rp" style="visibility:hidden;display:none" src="/rp.html" frameborder="0"></iframe>
     <iframe id="op" style="visibility:hidden;display:none" src="<%=AUTH_SERVER%>/session" frameborder="0"></iframe>
-    --->
 </body>
 </html>
