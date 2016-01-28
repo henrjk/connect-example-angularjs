@@ -84,7 +84,7 @@ angular
                   // there may be solutions with scope apply but this seems
                   // to work fine, although this may not be the best solution.
                   console.log('/<%= APP_AUTH_CALLBACK %> authorize() succeeded, destination=', dest)
-                  location.href =  dest || '/'
+                  $location.url(dest || '/')
                 },
 
                 // handle failed authorization
@@ -94,8 +94,8 @@ angular
 
               );
             } else {
-              $location.url(localStorage['anvil.connect.destination'] || '/');
-              delete localStorage['anvil.connect.destination']
+              var dest = Anvil.destination(false)
+              $location.url(dest || '/');
             }
           }
         }
