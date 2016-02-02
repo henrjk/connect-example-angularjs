@@ -75,8 +75,7 @@ angular
           session: function ($location, Anvil) {
             log.debug('/<%= APP_AUTH_CALLBACK %>.resolve.session:', $location)
             if ($location.hash()) {
-              Anvil.promise.authorize().then(
-
+              return Anvil.promise.authorize().then(
                 // handle successful authorization
                 function (response) {
                   var dest = Anvil.destination(false)
